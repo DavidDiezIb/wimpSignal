@@ -121,6 +121,29 @@ def rate(E, mw, sigma0, A, T, MD):
     result = quad(lambda v: integrand(v),v_min, v_max)[0]
     return result
 
+def resolution(E, spectrum, Ereff, FWHMreff):
+    ''' Convolution of energy spectrum with gaussian of variable width depending on the energy.
+    E array of energyes in keV, spectrum array with the distribution function, 
+    Ereff reference energy with known resolution, FWHMreff width of the gaussian resolution for Ereff (in %, eg. 21 for 21% FWHM).'''
+
+    fwSig = (2*np.sqrt(2*np.log(2))) # FWHM = 2*sqrt(2*ln(2)) * sigma
+    eRes =  np.zeros(np.size(E))
+
+    for i in range(np.size(E)):
+        fwhm = FWHMreff/100  * np.sqrt(Ereff/E[i])
+        sigma = fwhm / fwSig
+        gaussNorm = sigma * np.sqrt(2*np.pi)
+        for j in range(np.size(E)):
+            eRes[j] += spectrum[i] * exp(-((E[j]-E[i])**2)/(2*sigma**2)) / gaussNorm
+
+    return eRes
+          
+
+
+
+
+
+
 
 
 #### POISSON METHOD ####
